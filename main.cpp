@@ -18,6 +18,13 @@ Byte& Memory::operator[](u32 Address)
     return Data[Address];
 }
 
+void Memory::WriteWord(u32 &Cycles, Word Value, u32 Address)
+{
+    Data[Address] = Value & 0xFF;
+    Data[Address + 1] = (Value >> 8);
+    Cycles -=2;
+}
+
 void CPU::Reset(Memory &mem)
 {
     PC = 0xFFFC;

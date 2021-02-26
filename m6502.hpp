@@ -16,6 +16,7 @@ namespace m6502
         void Initialise();
         Byte operator[](u32 Address) const;
         Byte& operator[](u32 Address);
+        void WriteWord(u32 &Cycles,Word Value, u32 Address);
     };
 
     class CPU
