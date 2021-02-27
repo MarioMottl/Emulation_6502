@@ -18,9 +18,8 @@ namespace m6502
         Byte& operator[](u32 Address);
     };
 
-    class CPU
+    struct StatusFlags
     {
-    private:
         //Flags
         Byte C : 1;	//0: Carry Flag	
 	    Byte Z : 1;	//1: Zero Flag
@@ -30,12 +29,19 @@ namespace m6502
 	    Byte Unused : 1; //5: Unused
 	    Byte V : 1; //6: Overflow
 	    Byte N : 1; //7: Negative
+    };
 
+    class CPU
+    {
+    private:
         Word PC;
         Word SP;
 
         //Registers
         Byte A, X, Y;
+
+        StatusFlags Flag;
+
 
 
     public:
@@ -46,6 +52,17 @@ namespace m6502
         Word FetchWord(u32 &Cycles,const Memory &mem);
         Byte ReadByte(u32 &Cycles,Byte Address,const Memory &mem);
         Word ReadWord(u32 &Cycles, Word Address,const Memory &mem);
+
+        Word SPtoAddress() const;
+        void PushWordtoStack(u32 Cycles, Word Value, Memory &mem);
+        void PushBytetoStack(u32 Cycles, Byte Value, Memory &mem);
+        
+        void PushPCtoStack(u32 Cycles, Memory &mem);
+        void PushPCminusonetoStack(u32 Cycles, Memory &mem);
+        void PushPCplusonetoStack(u32 Cycles, Memory &mem);
+
+        Byte PopByteFromStack(u32 Cycles, Memory &mem);
+        Word PopWordFromStack(u32 Cycles, Memory &mem);
 
         void Reset(Memory &mem);
         void Execute(u32 Cycles,Memory &mem);

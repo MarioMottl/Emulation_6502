@@ -64,11 +64,61 @@ Word CPU::ReadWord(u32 &Cycles, Word Address,const Memory &mem)
     return LoByte | (HiByte << 8);
 }
 
+Word CPU::SPtoAddress() const
+{
+    return 0x100 | SP;
+}
+
+void CPU::PushBytetoStack(u32 Cycles, Byte Value, Memory &mem)
+{
+    WriteByte(Cycles, Value, SPtoAddress(),mem);
+    SP--;
+}
+
+void CPU::PushWordtoStack(u32 Cycles, Word Value, Memory &mem)
+{
+    PushBytetoStack(Cycles, Value >>8, mem);
+    PushBytetoStack(Cycles, (Value & 0xFF), mem);
+}
+
+void CPU::PushPCtoStack(u32 Cycles, Memory &mem)
+{
+    PushWordtoStack(Cycles, PC, mem);
+}
+
+void CPU::PushPCminusonetoStack(u32 Cycles, Memory &mem)
+{
+    PushWordtoStack(Cycles, PC - 1, mem);   
+}
+
+void CPU::PushPCplusonetoStack(u32 Cycles, Memory &mem)
+{
+    PushWordtoStack(Cycles, PC + 1, mem); 
+}
+
+Byte CPU::PopByteFromStack(u32 Cycles, Memory &mem)
+{
+    SP++;
+    Cycles --;
+    const Word SPW = SPtoAddress();
+    Byte Value = mem[SPW];
+    Cycles --;
+    return Value;
+}
+
+Word CPU::PopWordFromStack(u32 Cycles, Memory &mem)
+{
+    Word Value = ReadWord(Cycles, SPtoAddress(), mem);
+    SP += 2;
+    Cycles --;
+    return Value;
+}
+
 void CPU::Reset(Memory &mem)
 {
     PC = 0xFFFC;
     SP = 0x0100;
-    C = Z = I = D= B = V = N = 0;
+    Flag.C = Flag.Z = Flag.I = Flag.D= Flag.B = Flag.V = Flag.N = 0;
     A = X = Y = 0;
     mem.Initialise();
 }
@@ -85,8 +135,8 @@ void CPU::Execute(u32 Cycles, Memory &mem)
             {
                 Byte Value = FetchByte(Cycles,mem);
                 A = Value;
-                Z = (A == 0);
-                N = (A & 0b10000000) > 0;
+                Flag.Z = (A == 0);
+                Flag.N = (A & 0b10000000) > 0;
             }
             break;
             default:
