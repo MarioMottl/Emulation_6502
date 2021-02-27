@@ -16,7 +16,6 @@ namespace m6502
         void Initialise();
         Byte operator[](u32 Address) const;
         Byte& operator[](u32 Address);
-        void WriteWord(u32 &Cycles,Word Value, u32 Address);
     };
 
     class CPU
@@ -42,10 +41,15 @@ namespace m6502
     public:
         static constexpr Byte
             INS_LDA_IM = 0x49;
+    
+        void WriteWord(u32 &Cycles, Word Value, u32 Address, Memory &mem);
+        void WriteByte(u32 &Cycles, Word Value, u32 Address,Memory &mem);
+        Byte FetchByte (u32 &Cycles,const Memory &mem);
+        Word FetchWord(u32 &Cycles,const Memory &mem);
+        Byte ReadByte(u32 &Cycles,Byte Address,const Memory &mem);
+        Word ReadWord(u32 &Cycles, Word Address,const Memory &mem);
 
         void Reset(Memory &mem);
-        Byte FetchByte (u32 &Cycles, Memory &mem);
-        Byte ReadByte(u32 &Cycles, Byte Address, Memory &mem);
         void Execute(u32 Cycles,Memory &mem);
     };
     

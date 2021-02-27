@@ -18,11 +18,50 @@ Byte& Memory::operator[](u32 Address)
     return Data[Address];
 }
 
-void Memory::WriteWord(u32 &Cycles, Word Value, u32 Address)
+void CPU::WriteByte(u32 &Cycles, Word Value, u32 Address,Memory &mem)
 {
-    Data[Address] = Value & 0xFF;
-    Data[Address + 1] = (Value >> 8);
-    Cycles -=2;
+    mem[Address] = Value;
+    Cycles --;
+}
+
+void CPU::WriteWord(u32 &Cycles, Word Value, u32 Address, Memory &mem)
+{
+    mem[Address] = Value &  0xFF;
+    mem[Address + 1] = (Value >> 8);
+    Cycles --;
+}
+
+Byte CPU::FetchByte(u32 &Cycles,const Memory &mem)
+{
+    Byte Data = mem[PC];
+    PC ++;
+    Cycles --;
+    return Data;
+}
+
+Word CPU::FetchWord(u32 &Cycles,const Memory &mem)
+{
+    Word Data = mem[PC];
+    PC ++;
+    Data  |= (mem[PC] << 8);
+    PC ++;
+    Cycles -= 2;
+    return Data;
+}
+
+Byte CPU::ReadByte(u32 &Cycles, Byte Address,const Memory &mem)
+{
+    Byte Data = mem[Address];
+    PC ++;
+    Cycles --;
+    return Data;    
+}
+
+Word CPU::ReadWord(u32 &Cycles, Word Address,const Memory &mem)
+{
+    Byte LoByte = ReadByte(Cycles, Address, mem);
+    Byte HiByte = ReadByte(Cycles, Address + 1, mem);
+    return LoByte | (HiByte << 8);
 }
 
 void CPU::Reset(Memory &mem)
@@ -34,21 +73,6 @@ void CPU::Reset(Memory &mem)
     mem.Initialise();
 }
 
-Byte CPU::FetchByte(u32 &Cycles, Memory &mem)
-{
-    Byte Data = mem[PC];
-    PC ++;
-    Cycles --;
-    return Data;
-}
-
-Byte CPU::ReadByte(u32 &Cycles, Byte Address, Memory &mem)
-{
-    Byte Data = mem[Address];
-    PC ++;
-    Cycles --;
-    return Data;    
-}
 
 void CPU::Execute(u32 Cycles, Memory &mem)
 {
