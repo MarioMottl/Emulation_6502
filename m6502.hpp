@@ -56,7 +56,7 @@ namespace m6502
         Word SPtoAddress() const;
         void PushWordtoStack(u32 Cycles, Word Value, Memory &mem);
         void PushBytetoStack(u32 Cycles, Byte Value, Memory &mem);
-        
+        // 
         void PushPCtoStack(u32 Cycles, Memory &mem);
         void PushPCminusonetoStack(u32 Cycles, Memory &mem);
         void PushPCplusonetoStack(u32 Cycles, Memory &mem);
